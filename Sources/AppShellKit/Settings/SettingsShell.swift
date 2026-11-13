@@ -44,6 +44,11 @@ public struct SettingsShell<ID: SettingsPaneIdentifier, Detail: View>: View {
                 ForEach(model.panes) { pane in
                     let state = RowState(isSelected: pane.id == model.selection)
                     ListRowContent(pane.title, state: state) { SettingsPaneTile(pane: pane, metrics: metrics) }
+                        // The text colour itself, not the vibrant `.primary` the sidebar column gives by default: a
+                        // vibrant text is drawn by the window server's blending, so it came out black on the dark
+                        // sidebar wherever the window is drawn without it (an offscreen capture). Plain, it reads the
+                        // same everywhere.
+                        .foregroundStyle(Color.settingsSidebarText)
                         .listRowCell(state: state, hoverID: pane.id)
                         .tag(pane.id)
                 }
@@ -148,5 +153,16 @@ extension View {
             .contentMargins(.horizontal, metrics.paneMargin - metrics.groupedFormInset, for: .scrollContent)
             #endif
             .contentMargins(.bottom, metrics.paneMargin, for: .scrollContent)
+    }
+}
+
+extension Color {
+    /// The system's text colour: opaque black in light, white in dark, never vibrant.
+    static var settingsSidebarText: Color {
+        #if os(macOS)
+        Color(nsColor: .textColor)
+        #else
+        Color(uiColor: .label)
+        #endif
     }
 }

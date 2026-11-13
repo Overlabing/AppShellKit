@@ -13,7 +13,9 @@ The first release: the Settings window and the Space editor, extracted from the 
   (`UserDefaults` by default) and reopens it; a stored pane the app no longer has opens the first. `open(pane:)` opens
   a pane from a menu item; `open(step:)` and ⌘[ / ⌘] step through them. ↑ and ↓ move in the sidebar; VoiceOver reads
   each row as a button, the open one selected, and the pane's title as a header. `settingsPaneLayout()` lines a grouped
-  `Form` up with the header. Dimensions in `SettingsShellMetrics`.
+  `Form` up with the header. Dimensions in `SettingsShellMetrics`. The sidebar's titles are drawn in the system's text
+  colour rather than the sidebar's vibrant default, and the coloured tiles on a gradient rather than a solid vibrant
+  fill, so the rows read the same in light and dark wherever the window is drawn.
 - **`SpaceEditor`**: the sheet that creates or edits a Space, on a `SpaceEditorModel`. Name, colour from a ThemeKit
   `Palette` (swatches, read by name, the chosen one marked by a ring), icon from one picker (the initial of the name, an
   emoji typed or pasted, or a symbol of AppSupportKit's `SpaceIconCatalog`), and a preview with ThemeKit's
@@ -29,4 +31,5 @@ The first release: the Settings window and the Space editor, extracted from the 
   offered.
 - **`EmojiInput.lastEmoji(in:)`**: the last emoji of a text, for the editor's field.
 - Strings in English and French (`AppShellKit.xcstrings`).
-- `Gallery/`: renders the Settings window and the editor offscreen, light and dark.
+- `Gallery/`: renders the Settings window and the editor offscreen, light and dark, and fails when the sidebar's titles
+  or the editor's buttons do not show in the appearance's ink on an opaque background.

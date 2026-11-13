@@ -62,7 +62,8 @@ How each shell plugs in the app's content: [docs/shells.md](docs/shells.md). Cha
 
 `swift run --package-path Gallery AppShellKitGallery <output directory>` renders the Settings window and the Space
 editor, light and dark, as PNG files. It draws in a borderless window placed far off every screen, never activated: a
-`List` or a `Form` draws only in a window. Nothing appears on screen.
+`List` or a `Form` draws only in a window. Nothing appears on screen. Each render is checked: the sidebar's titles and
+the editor's buttons must show light on dark and dark on light, on an opaque background, or the run fails.
 
 ## Tests
 
