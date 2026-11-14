@@ -1,0 +1,46 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Overlabing
+#
+# What the GitHub plan cannot enforce on the server, checked here instead: no private shape (a team identifier, a home
+# directory path, a personal email address) in the tree or the history, and no Claude attribution or personal email
+# address in the commits or the text of a pull request. The scanners are AppTooling's, fetched at the version and
+# checksum pinned in scripts/apptooling.pin. Mark the `hygiene` job as a required check of the branch rules.
+#
+# The job runs on a standard Linux runner: the repository is public, so it is free and does not wait for a Mac.
+name: hygiene
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  hygiene:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Fetch AppTooling
+        run: echo "tools=$(scripts/tools.sh)" >> "$GITHUB_ENV"
+      - name: Leak scan, public patterns, working tree
+        run: '"$tools/bin/leak-scan" --public tree'
+      - name: Leak scan, public patterns, whole history
+        # Every private shape in every commit of every branch and tag. The history of this repository has none, so any
+        # finding fails the job.
+        run: '"$tools/bin/leak-scan" --public history'
+      - name: Attribution and personal addresses in the pull request
+        if: github.event_name == 'pull_request'
+        env:
+          # Passed as variables, never interpolated into the script: the text is written by whoever opens the pull request.
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: scripts/check-attribution.sh "$BASE_SHA" "$HEAD_SHA"
